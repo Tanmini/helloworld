@@ -1,12 +1,11 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 import 'RandomWords.dart';
 
 class RandomWordsState extends State<RandomWords> {
   final List<WordPair> _suggestions = <WordPair>[];
-  final Set<WordPair> _save = new Set<WordPair>();
+  final Set<WordPair> _save = Set<WordPair>();
   final TextStyle _biggerFont = const TextStyle(fontSize: 18.0);
 
   Widget _buildSuggestions() {
@@ -19,10 +18,10 @@ class RandomWordsState extends State<RandomWords> {
         // 在奇数行，该函数会添加一个分割线的 widget，来分隔相邻的词对。
         // 注意，在小屏幕上，分割线看起来可能比较吃力。
 
-        itemBuilder: (BuildContext _context, int i) {
+        itemBuilder: (BuildContext context, int i) {
           // 在每一列之前，添加一个1像素高的分隔线widget
           if (i.isOdd) {
-            return new Divider();
+            return const Divider();
           }
 
           // 语法 "i ~/ 2" 表示i除以2，但返回值是整形（向下取整）
@@ -40,21 +39,22 @@ class RandomWordsState extends State<RandomWords> {
 
   Widget _buildRow(WordPair pair) {
     final bool alreadySaved = _save.contains(pair);
-    return new ListTile(
-      title: new Text(
+    return ListTile(
+      title: Text(
         pair.asPascalCase,
         style: _biggerFont,
       ),
-      trailing: new Icon(
+      trailing: Icon(
         alreadySaved ? Icons.favorite : Icons.favorite_border,
         color: alreadySaved ? Colors.red : null,
       ),
-      onTap: (){
-        setState((){
-          if(alreadySaved){
+      onTap: () {
+        setState(() {
+          if (alreadySaved) {
             _save.remove(pair);
-          }else
+          } else {
             _save.add(pair);
+          }
         });
       },
     );
@@ -62,12 +62,46 @@ class RandomWordsState extends State<RandomWords> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    return Scaffold(
       // 代码从这里...
-      appBar: new AppBar(
-        title: new Text('Startup Name Generator'),
+      appBar: AppBar(
+        title: const Text('Startup Name Generator'),
+        actions: <Widget>[
+          IconButton(onPressed: _pushSaved, icon: const Icon(Icons.list))
+        ],
       ),
       body: _buildSuggestions(),
+    );
+  }
+
+  void _pushSaved() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        // 新增如下20行代码 ...
+        builder: (BuildContext context) {
+          final Iterable<ListTile> tiles = _save.map(
+            (WordPair pair) {
+              return ListTile(
+                title: Text(
+                  pair.asPascalCase,
+                  style: _biggerFont,
+                ),
+              );
+            },
+          );
+          final List<Widget> divided = ListTile.divideTiles(
+            context: context,
+            tiles: tiles,
+          ).toList();
+          return Scaffold(
+            // 新增 6 行代码开始 ...
+            appBar: AppBar(
+              title: const Text('Saved Suggestions'),
+            ),
+            body: ListView(children: divided),
+          );
+        },
+      ), // ... 新增代码结束
     );
   }
 }

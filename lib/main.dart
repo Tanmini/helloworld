@@ -7,10 +7,10 @@ void main() => runApp(new MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final wordPair = new WordPair.random(); // 新增了这一行
-    return new MaterialApp(
+    return MaterialApp(
+      theme: ThemeData(primaryColor: Colors.red),
       title: 'Welcome to Flutter',
-      home: new RandomWords(),
+      home: RandomWords(),
     );
   }
 }
